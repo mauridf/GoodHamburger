@@ -14,24 +14,18 @@ public class MenuRepository : IMenuRepository
         _context = context;
     }
 
-    public Task AddAsync(MenuItem item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteAsync(MenuItem item)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<List<MenuItem>> GetAllAsync()
     {
-        return await _context.MenuItems.ToListAsync();
+        return await _context.MenuItems
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 
-    public Task<MenuItem?> GetByIdAsync(Guid id)
+    public async Task<MenuItem?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.MenuItems
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<List<MenuItem>> GetByIdsAsync(List<Guid> ids)
@@ -41,8 +35,21 @@ public class MenuRepository : IMenuRepository
             .ToListAsync();
     }
 
-    public Task UpdateAsync(MenuItem item)
+    public async Task AddAsync(MenuItem item)
     {
-        throw new NotImplementedException();
+        await _context.MenuItems.AddAsync(item);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(MenuItem item)
+    {
+        _context.MenuItems.Update(item);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(MenuItem item)
+    {
+        _context.MenuItems.Remove(item);
+        await _context.SaveChangesAsync();
     }
 }

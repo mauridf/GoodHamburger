@@ -12,6 +12,11 @@ public class MenuItem
     public MenuItem(Guid id, string name, decimal price, MenuCategory category)
     {
         Id = id;
+        Update(name, price, category);
+    }
+
+    public void Update(string name, decimal price, MenuCategory category)
+    {
         Name = name;
         Price = price;
         Category = category;

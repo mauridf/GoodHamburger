@@ -41,6 +41,35 @@ public class MenuService
         return Map(item);
     }
 
+    public async Task<MenuItemResponse?> UpdateAsync(Guid id, UpdateMenuItemRequest request)
+    {
+        var item = await _repository.GetByIdAsync(id);
+
+        if (item is null)
+            return null;
+
+        item.Update(
+            request.Name,
+            request.Price,
+            (MenuCategory)request.Category);
+
+        await _repository.UpdateAsync(item);
+
+        return Map(item);
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+
+        if (item is null)
+            return false;
+
+        await _repository.DeleteAsync(item);
+
+        return true;
+    }
+
     private static MenuItemResponse Map(MenuItem item)
     {
         return new MenuItemResponse

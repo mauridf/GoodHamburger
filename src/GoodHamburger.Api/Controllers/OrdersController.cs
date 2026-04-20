@@ -41,4 +41,26 @@ public class OrdersController : ControllerBase
             new { id = result.Id },
             result);
     }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Put(Guid id, CreateOrderRequest request)
+    {
+        var result = await _service.UpdateAsync(id, request);
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var deleted = await _service.DeleteAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }

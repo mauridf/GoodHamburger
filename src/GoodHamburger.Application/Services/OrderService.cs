@@ -55,6 +55,43 @@ public class OrderService
         return order is null ? null : Map(order);
     }
 
+    public async Task<OrderResponse?> UpdateAsync(Guid id, CreateOrderRequest request)
+    {
+        var order = await _orderRepository.GetByIdAsync(id);
+
+        if (order is null)
+            return null;
+
+        var menuItems = await _menuRepository.GetByIdsAsync(request.MenuItemIds);
+
+        order.ClearItems();
+
+        foreach (var item in menuItems)
+        {
+            order.AddItem(new OrderItem(
+                item.Id,
+                item.Name,
+                item.Price,
+                item.Category));
+        }
+
+        await _orderRepository.UpdateAsync(order);
+
+        return Map(order);
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var order = await _orderRepository.GetByIdAsync(id);
+
+        if (order is null)
+            return false;
+
+        await _orderRepository.DeleteAsync(order);
+
+        return true;
+    }
+
     private static OrderResponse Map(Order order)
     {
         return new OrderResponse

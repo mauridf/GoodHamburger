@@ -1,3 +1,4 @@
+using GoodHamburger.Api.Middlewares;
 using GoodHamburger.Application.Interfaces;
 using GoodHamburger.Application.Services;
 using GoodHamburger.Infrastructure.Data;
@@ -28,6 +29,8 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 
