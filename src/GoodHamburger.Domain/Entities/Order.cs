@@ -1,5 +1,6 @@
 ﻿using GoodHamburger.Domain.Enums;
 using GoodHamburger.Domain.Exceptions;
+using GoodHamburger.Domain.Services;
 
 namespace GoodHamburger.Domain.Entities;
 
@@ -14,7 +15,7 @@ public class Order
 
     public decimal Subtotal => _items.Sum(x => x.Total);
 
-    public decimal Discount => CalculateDiscount();
+    public decimal Discount => DiscountCalculator.Calculate(Items);
 
     public decimal Total => Subtotal - Discount;
 
