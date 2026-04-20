@@ -94,6 +94,16 @@ Cada pedido pode conter no máximo:
 
 O desconto é calculado automaticamente no momento da criação ou atualização do pedido.
 
+## Diferenciais Implementados (Evolução)
+
+Além dos requisitos originais do desafio, foram adicionadas melhorias:
+
+- Suporte a quantidade por item
+- Imagens no cardápio
+- Desconto inteligente com múltiplos combos
+- Arquitetura DDD + SOLID
+- Testes unitários
+
 ---
 
 # Como Executar o Projeto
