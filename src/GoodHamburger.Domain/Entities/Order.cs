@@ -12,7 +12,7 @@ public class Order
 
     public IReadOnlyCollection<OrderItem> Items => _items;
 
-    public decimal Subtotal => _items.Sum(x => x.UnitPrice);
+    public decimal Subtotal => _items.Sum(x => x.Total);
 
     public decimal Discount => CalculateDiscount();
 

@@ -2,5 +2,5 @@
 
 public class CreateOrderRequest
 {
-    public List<Guid> MenuItemIds { get; set; } = new();
+    public List<CreateOrderItemRequest> Items { get; set; } = new();
 }
