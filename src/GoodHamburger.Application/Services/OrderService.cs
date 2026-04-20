@@ -23,7 +23,7 @@ public class OrderService
         var menuItems = await _menuRepository.GetByIdsAsync(request.MenuItemIds);
 
         if (!menuItems.Any())
-            throw new DomainException("Invalid order.");
+            throw new DomainException("Pedido inválido.");
 
         var order = new Order();
 
