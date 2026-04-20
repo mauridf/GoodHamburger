@@ -27,20 +27,12 @@ public class Order
 
     public void AddItem(OrderItem item)
     {
-        ValidateDuplicateCategory(item.Category);
-
         _items.Add(item);
     }
 
     public void ClearItems()
     {
         _items.Clear();
-    }
-
-    private void ValidateDuplicateCategory(MenuCategory category)
-    {
-        if (_items.Any(x => x.Category == category))
-            throw new DomainException($"Apenas um item permitido para esta categoria. {category}.");
     }
 
     private decimal CalculateDiscount()

@@ -20,20 +20,33 @@ public class OrderService
 
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest request)
     {
-        var menuItems = await _menuRepository.GetByIdsAsync(request.MenuItemIds);
+        ValidateRequest(request);
+
+        var ids = request.Items
+            .Select(x => x.MenuItemId)
+            .Distinct()
+            .ToList();
+
+        var menuItems = await _menuRepository.GetByIdsAsync(ids);
 
         if (!menuItems.Any())
-            throw new DomainException("Pedido inválido.");
+            throw new DomainException("Invalid order.");
 
         var order = new Order();
 
-        foreach (var item in menuItems)
+        foreach (var reqItem in request.Items)
         {
+            var menu = menuItems.FirstOrDefault(x => x.Id == reqItem.MenuItemId);
+
+            if (menu is null)
+                throw new DomainException("Menu item not found.");
+
             order.AddItem(new OrderItem(
-                item.Id,
-                item.Name,
-                item.Price,
-                item.Category));
+                menu.Id,
+                menu.Name,
+                menu.Price,
+                menu.Category,
+                reqItem.Quantity));
         }
 
         await _orderRepository.AddAsync(order);
@@ -57,22 +70,32 @@ public class OrderService
 
     public async Task<OrderResponse?> UpdateAsync(Guid id, CreateOrderRequest request)
     {
+        ValidateRequest(request);
+
         var order = await _orderRepository.GetByIdAsync(id);
 
         if (order is null)
             return null;
 
-        var menuItems = await _menuRepository.GetByIdsAsync(request.MenuItemIds);
+        var ids = request.Items
+            .Select(x => x.MenuItemId)
+            .Distinct()
+            .ToList();
+
+        var menuItems = await _menuRepository.GetByIdsAsync(ids);
 
         order.ClearItems();
 
-        foreach (var item in menuItems)
+        foreach (var reqItem in request.Items)
         {
+            var menu = menuItems.First(x => x.Id == reqItem.MenuItemId);
+
             order.AddItem(new OrderItem(
-                item.Id,
-                item.Name,
-                item.Price,
-                item.Category));
+                menu.Id,
+                menu.Name,
+                menu.Price,
+                menu.Category,
+                reqItem.Quantity));
         }
 
         await _orderRepository.UpdateAsync(order);
@@ -92,6 +115,15 @@ public class OrderService
         return true;
     }
 
+    private static void ValidateRequest(CreateOrderRequest request)
+    {
+        if (request.Items is null || !request.Items.Any())
+            throw new DomainException("Order must contain items.");
+
+        if (request.Items.Any(x => x.Quantity <= 0))
+            throw new DomainException("Quantity must be greater than zero.");
+    }
+
     private static OrderResponse Map(Order order)
     {
         return new OrderResponse
@@ -103,7 +135,9 @@ public class OrderService
             Items = order.Items.Select(i => new OrderItemResponse
             {
                 Name = i.Name,
-                Price = i.UnitPrice,
+                UnitPrice = i.UnitPrice,
+                Quantity = i.Quantity,
+                Total = i.Total,
                 Category = i.Category.ToString()
             }).ToList()
         };
