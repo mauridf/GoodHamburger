@@ -1,4 +1,5 @@
 ﻿using GoodHamburger.Domain.Enums;
+using GoodHamburger.Domain.Exceptions;
 
 namespace GoodHamburger.Domain.Entities;
 
@@ -25,6 +26,9 @@ public class OrderItem
         MenuCategory category,
         int quantity)
     {
+        if (quantity <= 0)
+            throw new DomainException("Quantidade tem que ser maior que zero.");
+
         Id = Guid.NewGuid();
         MenuItemId = menuItemId;
         Name = name;
