@@ -22,7 +22,8 @@ public class AppDbContext : DbContext
 
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.CreatedAt).IsRequired();
+            entity.Property(x => x.CreatedAt)
+                .IsRequired();
 
             entity.Ignore(x => x.Subtotal);
             entity.Ignore(x => x.Discount);
@@ -45,8 +46,15 @@ public class AppDbContext : DbContext
 
             entity.Property<Guid>("OrderId");
 
-            entity.Property(x => x.Name).HasMaxLength(100);
-            entity.Property(x => x.UnitPrice).HasColumnType("numeric(10,2)");
+            entity.Property(x => x.Name)
+                .HasMaxLength(120)
+                .IsRequired();
+
+            entity.Property(x => x.UnitPrice)
+                .HasColumnType("numeric(10,2)");
+
+            entity.Property(x => x.Quantity)
+                .IsRequired();
         });
 
         builder.Entity<MenuItem>(entity =>
@@ -55,8 +63,18 @@ public class AppDbContext : DbContext
 
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Name).HasMaxLength(100);
-            entity.Property(x => x.Price).HasColumnType("numeric(10,2)");
+            entity.Property(x => x.Name)
+                .HasMaxLength(120)
+                .IsRequired();
+
+            entity.Property(x => x.Description)
+                .HasMaxLength(500);
+
+            entity.Property(x => x.ImageUrl)
+                .HasMaxLength(500);
+
+            entity.Property(x => x.Price)
+                .HasColumnType("numeric(10,2)");
         });
     }
 }

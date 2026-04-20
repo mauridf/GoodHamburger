@@ -10,7 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "Good Hamburger API",
+        Version = "v1",
+        Description = "API REST para gerenciamento de pedidos e cardápio"
+    });
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(

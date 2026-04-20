@@ -4,7 +4,9 @@ namespace GoodHamburger.Application.DTOs;
 
 public class UpdateMenuItemRequest
 {
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = "";
+    public string Description { get; set; } = "";
     public decimal Price { get; set; }
-    public MenuCategory Category { get; set; }
+    public string ImageUrl { get; set; } = "";
+    public int Category { get; set; }
 }

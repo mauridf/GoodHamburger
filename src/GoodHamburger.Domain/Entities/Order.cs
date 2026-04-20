@@ -1,6 +1,4 @@
 ﻿using GoodHamburger.Domain.Enums;
-using GoodHamburger.Domain.Exceptions;
-using GoodHamburger.Domain.Services;
 
 namespace GoodHamburger.Domain.Entities;
 
@@ -15,7 +13,7 @@ public class Order
 
     public decimal Subtotal => _items.Sum(x => x.Total);
 
-    public decimal Discount => DiscountCalculator.Calculate(Items);
+    public decimal Discount => CalculateDiscount();
 
     public decimal Total => Subtotal - Discount;
 
@@ -37,19 +35,52 @@ public class Order
 
     private decimal CalculateDiscount()
     {
-        bool hasSandwich = _items.Any(x => x.Category == MenuCategory.Sandwich);
-        bool hasSide = _items.Any(x => x.Category == MenuCategory.Side);
-        bool hasDrink = _items.Any(x => x.Category == MenuCategory.Drink);
+        int sandwiches = _items
+            .Where(x => x.Category == MenuCategory.Sandwich)
+            .Sum(x => x.Quantity);
 
-        if (hasSandwich && hasSide && hasDrink)
-            return Subtotal * 0.20m;
+        int sides = _items
+            .Where(x => x.Category == MenuCategory.Side)
+            .Sum(x => x.Quantity);
 
-        if (hasSandwich && hasDrink)
-            return Subtotal * 0.15m;
+        int drinks = _items
+            .Where(x => x.Category == MenuCategory.Drink)
+            .Sum(x => x.Quantity);
 
-        if (hasSandwich && hasSide)
-            return Subtotal * 0.10m;
+        decimal sandwichPrice = GetPrice(MenuCategory.Sandwich);
+        decimal sidePrice = GetPrice(MenuCategory.Side);
+        decimal drinkPrice = GetPrice(MenuCategory.Drink);
 
-        return 0m;
+        decimal discount = 0m;
+
+        while (sandwiches > 0 && sides > 0 && drinks > 0)
+        {
+            discount += (sandwichPrice + sidePrice + drinkPrice) * 0.20m;
+            sandwiches--;
+            sides--;
+            drinks--;
+        }
+
+        while (sandwiches > 0 && drinks > 0)
+        {
+            discount += (sandwichPrice + drinkPrice) * 0.15m;
+            sandwiches--;
+            drinks--;
+        }
+
+        while (sandwiches > 0 && sides > 0)
+        {
+            discount += (sandwichPrice + sidePrice) * 0.10m;
+            sandwiches--;
+            sides--;
+        }
+
+        return decimal.Round(discount, 2);
+    }
+
+    private decimal GetPrice(MenuCategory category)
+    {
+        return _items
+            .FirstOrDefault(x => x.Category == category)?.UnitPrice ?? 0m;
     }
 }

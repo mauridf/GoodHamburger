@@ -33,7 +33,9 @@ public class MenuService
         var item = new MenuItem(
             Guid.NewGuid(),
             request.Name,
+            request.Description,
             request.Price,
+            request.ImageUrl,
             (MenuCategory)request.Category);
 
         await _repository.AddAsync(item);
@@ -50,7 +52,9 @@ public class MenuService
 
         item.Update(
             request.Name,
+            request.Description,
             request.Price,
+            request.ImageUrl,
             (MenuCategory)request.Category);
 
         await _repository.UpdateAsync(item);
@@ -76,7 +80,9 @@ public class MenuService
         {
             Id = item.Id,
             Name = item.Name,
+            Description = item.Description,
             Price = item.Price,
+            ImageUrl = item.ImageUrl,
             Category = item.Category.ToString()
         };
     }
