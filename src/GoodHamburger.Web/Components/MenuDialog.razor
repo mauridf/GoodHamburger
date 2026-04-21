@@ -1,0 +1,71 @@
+﻿@inject MenuApiService MenuService
+@inject ISnackbar Snackbar
+@inject MudDialogInstance MudDialog
+
+<MudDialog>
+
+    <MudDialogContent>
+
+        <MudTextField Label="Nome" @bind-Value="Model.Name" Required="true" />
+        <MudTextField Label="Descrição" @bind-Value="Model.Description" />
+        <MudTextField Label="Preço" @bind-Value="Model.Price" Required="true" />
+
+        <MudTextField Label="Imagem URL" @bind-Value="Model.ImageUrl" />
+
+        <MudSelect T="int"
+                   Label="Categoria"
+                   @bind-Value="Model.Category">
+
+            <MudSelectItem Value="1">Sandwich</MudSelectItem>
+            <MudSelectItem Value="2">Side</MudSelectItem>
+            <MudSelectItem Value="3">Drink</MudSelectItem>
+
+        </MudSelect>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" width="150" class="mt-3" />
+        }
+
+    </MudDialogContent>
+
+    <MudDialogActions>
+
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+
+        <MudButton Color="Color.Success"
+                   Variant="Variant.Filled"
+                   OnClick="Save">
+            Salvar
+        </MudButton>
+
+    </MudDialogActions>
+
+</MudDialog>
+
+@code {
+    [Parameter]
+    public MenuItemModel Model { get; set; } = new();
+
+    private async Task Save()
+    {
+        if (Model.Id == Guid.Empty)
+        {
+            Model.Id = Guid.NewGuid();
+            await MenuService.CreateAsync(Model);
+            Snackbar.Add("Item criado", Severity.Success);
+        }
+        else
+        {
+            await MenuService.UpdateAsync(Model);
+            Snackbar.Add("Item atualizado", Severity.Success);
+        }
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

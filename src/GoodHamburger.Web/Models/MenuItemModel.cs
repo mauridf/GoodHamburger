@@ -12,5 +12,5 @@ public class MenuItemModel
 
     public string ImageUrl { get; set; } = "";
 
-    public string Category { get; set; } = "";
+    public int Category { get; set; }
 }

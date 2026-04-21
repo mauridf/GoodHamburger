@@ -1,177 +1,133 @@
 ﻿@page "/admin/menu"
 
 @inject MenuApiService MenuService
+@inject IDialogService DialogService
 @inject ISnackbar Snackbar
-
-<PageTitle>Admin Menu</PageTitle>
 
 <MudText Typo="Typo.h4" Class="mb-4">
     Administração do Cardápio
 </MudText>
 
+<MudTextField Placeholder="Buscar..."
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              @bind-Value="_search"
+              Class="mb-3" />
+
 <MudButton Color="Color.Primary"
            Variant="Variant.Filled"
-           OnClick="NewItem"
-           Class="mb-4">
+           OnClick="OpenCreateDialog">
     Novo Item
 </MudButton>
 
-@if (_loading)
-{
-    <MudProgressCircular Indeterminate="true" />
-}
-else
-{
-    <MudTable Items="_items" Hover="true" Dense="true">
+<MudTable Items="FilteredItems" Hover="true" Dense="true">
 
-        <HeaderContent>
-            <MudTh>Imagem</MudTh>
-            <MudTh>Nome</MudTh>
-            <MudTh>Preço</MudTh>
-            <MudTh>Categoria</MudTh>
-            <MudTh>Ações</MudTh>
-        </HeaderContent>
+    <HeaderContent>
+        <MudTh>Imagem</MudTh>
+        <MudTh>Nome</MudTh>
+        <MudTh>Preço</MudTh>
+        <MudTh>Categoria</MudTh>
+        <MudTh>Ações</MudTh>
+    </HeaderContent>
 
-        <RowTemplate>
+    <RowTemplate>
 
-            <MudTd>
-                <img src="@context.ImageUrl"
-                     width="60" />
-            </MudTd>
+        <MudTd>
+            <img src="@context.ImageUrl" width="60" />
+        </MudTd>
 
-            <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Name</MudTd>
 
-            <MudTd>
-                R$ @context.Price.ToString("0.00")
-            </MudTd>
+        <MudTd>
+            R$ @context.Price.ToString("0.00")
+        </MudTd>
 
-            <MudTd>@context.Category</MudTd>
+        <MudTd>
+            @CategoryHelper.Map[context.Category]
+        </MudTd>
 
-            <MudTd>
+        <MudTd>
 
-                <MudButton Size="Size.Small"
-                           Color="Color.Info"
-                           OnClick="() => Edit(context)">
-                    Editar
-                </MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           OnClick="() => OpenEditDialog(context)" />
 
-                <MudButton Size="Size.Small"
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
                            Color="Color.Error"
-                           OnClick="() => Remove(context.Id)">
-                    Excluir
-                </MudButton>
+                           OnClick="() => ConfirmDelete(context.Id)" />
 
-            </MudTd>
+        </MudTd>
 
-        </RowTemplate>
+    </RowTemplate>
 
-    </MudTable>
-}
-
-<MudDivider Class="my-4" />
-
-<MudPaper Class="pa-4">
-
-    <MudText Typo="Typo.h6">
-        @_title
-    </MudText>
-
-    <MudTextField Label="Nome" @bind-Value="_model.Name" />
-    <MudTextField Label="Descrição" @bind-Value="_model.Description" />
-    <MudTextField Label="Preço" @bind-Value="_model.Price" />
-    <MudTextField Label="Imagem URL" @bind-Value="_model.ImageUrl" />
-
-    <MudSelect T="string"
-               Label="Categoria"
-               @bind-Value="_model.Category">
-
-        <MudSelectItem Value="Sandwich">Sandwich</MudSelectItem>
-        <MudSelectItem Value="Side">Side</MudSelectItem>
-        <MudSelectItem Value="Drink">Drink</MudSelectItem>
-
-    </MudSelect>
-
-    @if (!string.IsNullOrWhiteSpace(_model.ImageUrl))
-    {
-        <img src="@_model.ImageUrl"
-             width="180"
-             class="mt-3" />
-    }
-
-    <MudButton Color="Color.Success"
-               Variant="Variant.Filled"
-               Class="mt-4"
-               OnClick="Save">
-        Salvar
-    </MudButton>
-
-</MudPaper>
+</MudTable>
 
 @code {
     private List<MenuItemModel> _items = new();
-    private bool _loading = true;
-
-    private MenuItemModel _model = new();
-
-    private string _title = "Novo Item";
+    private string _search = "";
 
     protected override async Task OnInitializedAsync()
     {
-        await Load();
+        _items = await MenuService.GetAllAsync();
     }
 
-    private async Task Load()
+    private IEnumerable<MenuItemModel> FilteredItems =>
+        _items.Where(x =>
+            string.IsNullOrWhiteSpace(_search) ||
+            x.Name.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+    private async Task Reload()
     {
         _items = await MenuService.GetAllAsync();
-        _loading = false;
         StateHasChanged();
     }
 
-    private void NewItem()
+    private async Task OpenCreateDialog()
     {
-        _model = new MenuItemModel();
-        _title = "Novo Item";
-    }
-
-    private void Edit(MenuItemModel item)
-    {
-        _model = new MenuItemModel
+        var parameters = new DialogParameters
         {
-            Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
-            Price = item.Price,
-            ImageUrl = item.ImageUrl,
-            Category = item.Category
+            ["Model"] = new MenuItemModel()
         };
 
-        _title = "Editar Item";
+        var dialog = DialogService.Show<MenuDialog>("Novo Item", parameters);
+
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await Reload();
+        }
     }
 
-    private async Task Save()
+    private async Task OpenEditDialog(MenuItemModel item)
     {
-        if (_model.Id == Guid.Empty)
+        var parameters = new DialogParameters
         {
-            _model.Id = Guid.NewGuid();
-            await MenuService.CreateAsync(_model);
-            Snackbar.Add("Item criado com sucesso", Severity.Success);
-        }
-        else
-        {
-            await MenuService.UpdateAsync(_model);
-            Snackbar.Add("Item atualizado com sucesso", Severity.Success);
-        }
+            ["Model"] = item
+        };
 
-        NewItem();
-        await Load();
+        var dialog = DialogService.Show<MenuDialog>("Editar Item", parameters);
+
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await Reload();
+        }
     }
 
-    private async Task Remove(Guid id)
+    private async Task ConfirmDelete(Guid id)
     {
-        await MenuService.DeleteAsync(id);
+        bool? result = await DialogService.ShowMessageBox(
+            "Confirmar",
+            "Deseja realmente excluir?",
+            yesText: "Sim",
+            cancelText: "Cancelar");
 
-        Snackbar.Add("Item removido", Severity.Warning);
-
-        await Load();
+        if (result == true)
+        {
+            await MenuService.DeleteAsync(id);
+            Snackbar.Add("Item removido", Severity.Warning);
+            await Reload();
+        }
     }
 }
