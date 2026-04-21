@@ -1,5 +1,11 @@
 ﻿@page "/admin/menu"
 
+@using MudBlazor
+@using GoodHamburger.Web.Services
+@using GoodHamburger.Web.Models
+@using GoodHamburger.Web.Components
+@using GoodHamburger.Web.Helpers
+
 @inject MenuApiService MenuService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -11,7 +17,7 @@
 <MudTextField Placeholder="Buscar..."
               Adornment="Adornment.Start"
               AdornmentIcon="@Icons.Material.Filled.Search"
-              @bind-Value="_search"
+              @bind-value="_search"
               Class="mb-3" />
 
 <MudButton Color="Color.Primary"
@@ -43,17 +49,17 @@
         </MudTd>
 
         <MudTd>
-            @CategoryHelper.Map[context.Category]
+            @context.Category
         </MudTd>
 
         <MudTd>
 
             <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                           OnClick="() => OpenEditDialog(context)" />
+                           OnClick="async () => await OpenEditDialog(context)" />
 
             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                            Color="Color.Error"
-                           OnClick="() => ConfirmDelete(context.Id)" />
+                           OnClick="async () => await ConfirmDelete(context.Id)"  />
 
         </MudTd>
 
@@ -92,7 +98,7 @@
 
         var result = await dialog.Result;
 
-        if (!result.Cancelled)
+        if (!result.Canceled)
         {
             await Reload();
         }
@@ -109,7 +115,7 @@
 
         var result = await dialog.Result;
 
-        if (!result.Cancelled)
+        if (!result.Canceled)
         {
             await Reload();
         }
