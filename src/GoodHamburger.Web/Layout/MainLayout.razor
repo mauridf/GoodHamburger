@@ -1,31 +1,53 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider />
+<MudThemeProvider @bind-IsDarkMode="_darkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
+
+    <MudAppBar Elevation="1">
+
+        <MudText Typo="Typo.h6">
+            Good Hamburger
+        </MudText>
+
+        <MudSpacer />
+
+        <MudButton Href="/" Variant="Variant.Text">
+            Cardápio
+        </MudButton>
+
+        <MudButton Href="/orders" Variant="Variant.Text">
+            Pedidos
+        </MudButton>
+
+        <MudIconButton Icon="@Icons.Material.Filled.DarkMode"
+                       OnClick="ToggleTheme" />
+
+    </MudAppBar>
+
     <MudMainContent Class="pa-4">
-        <MudLayout>
 
-            <MudAppBar Elevation="1">
-                <MudText Typo="Typo.h6">Good Hamburger</MudText>
-            </MudAppBar>
+        <MudGrid>
+            <MudItem xs="12" md="8">
+                @Body
+            </MudItem>
 
-            <MudMainContent Class="pa-4">
+            <MudItem xs="12" md="4">
+                <CartDrawer />
+            </MudItem>
+        </MudGrid>
 
-                <MudGrid>
-                    <MudItem xs="12" md="8">
-                        @Body
-                    </MudItem>
-
-                    <MudItem xs="12" md="4">
-                        <CartDrawer />
-                    </MudItem>
-                </MudGrid>
-
-            </MudMainContent>
-
-        </MudLayout>
     </MudMainContent>
+
 </MudLayout>
+
+@code{
+    private bool _darkMode;
+
+    private void ToggleTheme()
+    {
+        _darkMode = !_darkMode;
+    }
+}

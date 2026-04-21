@@ -21,4 +21,10 @@ public class OrderApiService
         return await response.Content
             .ReadFromJsonAsync<OrderResponseModel>();
     }
+
+    public async Task<List<OrderResponseModel>> GetAllAsync()
+    {
+        return await _http.GetFromJsonAsync<List<OrderResponseModel>>("api/orders")
+            ?? new();
+    }
 }

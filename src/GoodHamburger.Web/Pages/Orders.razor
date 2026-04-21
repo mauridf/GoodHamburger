@@ -1,0 +1,50 @@
+﻿@page "/orders"
+@inject OrderApiService OrderService
+
+<PageTitle>Pedidos</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">
+    Histórico de Pedidos
+</MudText>
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (!_orders.Any())
+{
+    <MudAlert Severity="Severity.Info">
+        Nenhum pedido encontrado.
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="_orders" Hover="true" Dense="true">
+
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Subtotal</MudTh>
+            <MudTh>Desconto</MudTh>
+            <MudTh>Total</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd>R$ @context.Subtotal.ToString("0.00")</MudTd>
+            <MudTd>R$ @context.Discount.ToString("0.00")</MudTd>
+            <MudTd>R$ @context.Total.ToString("0.00")</MudTd>
+        </RowTemplate>
+
+    </MudTable>
+}
+
+@code {
+    private bool _loading = true;
+    private List<OrderResponseModel> _orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _orders = await OrderService.GetAllAsync();
+        _loading = false;
+    }
+}
