@@ -29,6 +29,16 @@ builder.Services.AddScoped<IMenuRepository, MenuRepository>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<MenuService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("frontend", policy =>
+    {
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowAnyOrigin();
+    });
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -39,6 +49,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors("frontend");
 
 app.MapControllers();
 
