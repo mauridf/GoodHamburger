@@ -16,5 +16,6 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<MenuApiService>();
 builder.Services.AddScoped<OrderApiService>();
+builder.Services.AddScoped<CartService>();
 
 await builder.Build().RunAsync();

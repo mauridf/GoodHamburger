@@ -1,6 +1,9 @@
 ﻿@page "/"
 @inject MenuApiService MenuService
 
+@inject CartService CartService
+@inject ISnackbar Snackbar
+
 @using GoodHamburger.Web.Models
 @using GoodHamburger.Web.Services
 
@@ -80,6 +83,7 @@ else
 
     private void AddToCart(MenuItemModel item)
     {
-        Console.WriteLine($"Adicionado: {item.Name}");
+        CartService.Add(item);
+        Snackbar.Add("Item adicionado ao carrinho", Severity.Success);
     }
 }

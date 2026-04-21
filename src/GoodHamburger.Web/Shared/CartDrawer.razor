@@ -1,0 +1,64 @@
+﻿@inject CartService CartService
+
+<MudPaper Class="pa-4">
+
+    <MudText Typo="Typo.h5" Class="mb-3">
+        Carrinho
+    </MudText>
+
+    @if (!CartService.Items.Any())
+    {
+        <MudText>Carrinho vazio</MudText>
+    }
+    else
+    {
+        @foreach (var item in CartService.Items)
+        {
+            <MudPaper Class="pa-2 mb-2">
+
+                <MudText>@item.Name</MudText>
+
+                <MudText>
+                    @item.Quantity x R$ @item.UnitPrice
+                </MudText>
+
+                <MudButton Size="Size.Small"
+                           OnClick="() => CartService.Decrease(item.MenuItemId)">
+                    -
+                </MudButton>
+
+                <MudButton Size="Size.Small"
+                           OnClick="() => CartService.Increase(item.MenuItemId)">
+                    +
+                </MudButton>
+
+            </MudPaper>
+        }
+
+        <MudDivider Class="my-3" />
+
+        <MudText Typo="Typo.h6">
+            Subtotal: R$ @CartService.Subtotal.ToString("0.00")
+        </MudText>
+
+        <MudButton FullWidth="true"
+                   Color="Color.Success"
+                   Variant="Variant.Filled"
+                   Class="mt-3">
+            Finalizar Pedido
+        </MudButton>
+    }
+
+</MudPaper>
+
+@code {
+    protected override void OnInitialized()
+    {
+        CartService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= StateHasChanged;
+    }
+}
