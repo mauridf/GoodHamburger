@@ -1,6 +1,6 @@
-# Good Hamburger API 🍔
+# Good Hamburger API + Frontend 🍔
 
-API REST desenvolvida em **.NET 8** para gerenciamento de pedidos de uma hamburgueria, criada como solução para desafio técnico.  
+API REST desenvolvida em **.NET 8** com **Frontend em Blazor WebAssembly + MudBlazor**, criada como solução para desafio técnico.
 O projeto foi construído com foco em **boas práticas de engenharia**, **arquitetura escalável**, **código limpo** e **manutenibilidade**.
 
 ---
@@ -9,68 +9,79 @@ O projeto foi construído com foco em **boas práticas de engenharia**, **arquit
 
 A aplicação permite:
 
-- Gerenciamento completo do cardápio
-- Criação e gerenciamento de pedidos
-- Aplicação automática de descontos promocionais
-- Consulta detalhada de pedidos
-- Tratamento padronizado de erros
-- Estrutura preparada para evolução futura
+* Gerenciamento completo do cardápio
+* Painel administrativo Web
+* Criação e gerenciamento de pedidos
+* Aplicação automática de descontos promocionais
+* Consulta detalhada de pedidos
+* Interface moderna e responsiva
+* Tratamento padronizado de erros
+* Estrutura preparada para evolução futura
 
 ---
 
 # Stack Tecnológica
 
-- .NET 8
-- ASP.NET Core Web API
-- Entity Framework Core
-- PostgreSQL
-- Swagger / OpenAPI
-- xUnit
-- FluentAssertions
+## Backend
+
+* .NET 8
+* ASP.NET Core Web API
+* Entity Framework Core
+* PostgreSQL
+* Swagger / OpenAPI
+
+## Frontend
+
+* Blazor WebAssembly
+* MudBlazor
+* HttpClient
+* Componentização Razor
+
+## Qualidade
+
+* xUnit
+* FluentAssertions
 
 ---
 
 # Arquitetura Utilizada
-
-O projeto segue princípios de **DDD (Domain-Driven Design)** e **SOLID**, organizado em camadas.
 
 ```text
 src/
 ├── GoodHamburger.Api
 ├── GoodHamburger.Application
 ├── GoodHamburger.Domain
-└── GoodHamburger.Infrastructure
+├── GoodHamburger.Infrastructure
+└── GoodHamburger.Web
 
 tests/
 └── GoodHamburger.UnitTests
 ```
 
-## Responsabilidades
+---
 
-### GoodHamburger.Api
-- Controllers
-- Configuração da aplicação
-- Swagger
-- Middlewares
-- Injeção de Dependência
+# Módulos do Sistema
 
-### GoodHamburger.Application
-- Casos de uso
-- DTOs
-- Services
-- Orquestração entre camadas
+## Backend
 
-### GoodHamburger.Domain
-- Entidades
-- Regras de negócio
-- Exceptions
-- Núcleo do sistema
+Responsável por:
 
-### GoodHamburger.Infrastructure
-- Entity Framework Core
-- PostgreSQL
-- Repositórios
-- Persistência de dados
+* Regras de negócio
+* Persistência de dados
+* API REST
+* Cálculo de descontos
+* Endpoints administrativos
+
+## Frontend Web
+
+Responsável por:
+
+* Exibição do cardápio
+* Carrinho de compras
+* Cadastro de pedidos
+* Administração do menu
+* Inclusão / edição / exclusão de itens
+* Interface moderna via MudBlazor
 
 ---
 
@@ -80,55 +91,46 @@ tests/
 
 Cada pedido pode conter no máximo:
 
-- 1 Sanduíche
-- 1 Acompanhamento
-- 1 Bebida
+* 1 Sanduíche
+* 1 Acompanhamento
+* 1 Bebida
 
-## Regras de Desconto
+## Descontos Automáticos
 
-| Combinação | Desconto |
-|-----------|----------|
-| Sanduíche + Batata + Refrigerante | 20% |
-| Sanduíche + Refrigerante | 15% |
-| Sanduíche + Batata | 10% |
-
-O desconto é calculado automaticamente no momento da criação ou atualização do pedido.
-
-## Diferenciais Implementados (Evolução)
-
-Além dos requisitos originais do desafio, foram adicionadas melhorias:
-
-- Suporte a quantidade por item
-- Imagens no cardápio
-- Desconto inteligente com múltiplos combos
-- Arquitetura DDD + SOLID
-- Testes unitários
+| Combinação                        | Desconto |
+| --------------------------------- | -------- |
+| Sanduíche + Batata + Refrigerante | 20%      |
+| Sanduíche + Refrigerante          | 15%      |
+| Sanduíche + Batata                | 10%      |
 
 ---
 
-# Como Executar o Projeto
+# Como Executar
 
-## 1. Clonar o repositório
+## 1. Clonar repositório
 
 ```bash
 git clone URL_DO_REPOSITORIO
+cd GoodHamburger
 ```
 
-## 2. Criar banco PostgreSQL
+---
+
+## 2. Banco PostgreSQL
 
 ```sql
 CREATE DATABASE goodhamburger_db;
 ```
 
-## 3. Configurar connection string
+---
+
+## 3. Configurar API
 
 Arquivo:
 
 ```text
 src/GoodHamburger.Api/appsettings.json
 ```
-
-Exemplo:
 
 ```json
 {
@@ -138,31 +140,69 @@ Exemplo:
 }
 ```
 
-## 4. Aplicar migrations
+---
+
+## 4. Rodar migrations
 
 ```bash
 dotnet ef database update --project src/GoodHamburger.Infrastructure --startup-project src/GoodHamburger.Api
 ```
 
-## 5. Executar aplicação
+---
+
+## 5. Executar Backend
 
 ```bash
 dotnet run --project src/GoodHamburger.Api
 ```
 
----
-
-# Swagger / Documentação
-
-Após iniciar a aplicação:
+Swagger:
 
 ```text
-https://localhost:xxxx/swagger
+https://localhost:7100/swagger
 ```
 
 ---
 
-# Endpoints Disponíveis
+## 6. Executar Frontend
+
+```bash
+dotnet run --project src/GoodHamburger.Web
+```
+
+Aplicação Web:
+
+```text
+https://localhost:7284
+```
+
+---
+
+# Telas do Frontend
+
+## Cardápio
+
+* Lista produtos
+* Adiciona ao carrinho
+
+## Carrinho
+
+* Resumo do pedido
+* Total com desconto
+
+## Pedidos
+
+* Consulta pedidos realizados
+
+## Admin
+
+* CRUD completo do menu
+* Modal para cadastro
+* Busca rápida
+
+---
+
+# Endpoints
 
 ## Menu
 
@@ -186,82 +226,19 @@ DELETE /api/orders/{id}
 
 ---
 
-# Exemplo de Cadastro de Item no Menu
+# Diferenciais Implementados
 
-```json
-{
-  "name": "X Burger",
-  "price": 5.00,
-  "category": 1
-}
-```
-
-## Categorias
-
-```text
-1 = Sandwich
-2 = Side
-3 = Drink
-```
-
----
-
-# Exemplo de Pedido
-
-```json
-{
-  "menuItemIds": [
-    "GUID_ITEM_1",
-    "GUID_ITEM_2"
-  ]
-}
-```
-
----
-
-# Tratamento de Erros
-
-A API retorna mensagens claras e padronizadas para:
-
-- Itens duplicados no pedido
-- Pedido inválido
-- Recurso não encontrado
-- Erros internos
-
----
-
-# Decisões Técnicas
-
-## Por que PostgreSQL?
-
-- Gratuito
-- Estável
-- Excelente performance
-- Amplamente utilizado no mercado
-
-## Por que DDD?
-
-Separação clara entre regras de negócio e infraestrutura.
-
-## Por que SOLID?
-
-Facilita manutenção, testes e evolução do sistema.
-
----
-
-# Melhorias Futuras
-
-- Autenticação JWT
-- Docker Compose
-- CI/CD Pipeline
-- Cache Redis
-- Logs estruturados
-- Frontend em Blazor
-- Testes de integração
-- Observabilidade
+* Backend em camadas (DDD + SOLID)
+* Frontend moderno em Blazor
+* UI profissional com MudBlazor
+* CRUD administrativo
+* PostgreSQL real
+* Código limpo
+* Estrutura pronta para cloud
+* Fácil manutenção
 
 ---
 
 # Autor
 
-**Maurício Carvalho**
+**Maurício Oliveira**
