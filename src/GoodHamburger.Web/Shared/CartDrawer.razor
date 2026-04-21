@@ -1,4 +1,6 @@
 ﻿@inject CartService CartService
+@inject OrderApiService OrderService
+@inject ISnackbar Snackbar
 
 <MudPaper Class="pa-4">
 
@@ -19,7 +21,7 @@
                 <MudText>@item.Name</MudText>
 
                 <MudText>
-                    @item.Quantity x R$ @item.UnitPrice
+                    @item.Quantity x R$ @item.UnitPrice.ToString("0.00")
                 </MudText>
 
                 <MudButton Size="Size.Small"
@@ -37,24 +39,74 @@
 
         <MudDivider Class="my-3" />
 
-        <MudText Typo="Typo.h6">
+        <MudText>
             Subtotal: R$ @CartService.Subtotal.ToString("0.00")
         </MudText>
+
+        @if (_result is not null)
+        {
+            <MudText Color="Color.Warning">
+                Desconto: R$ @_result.Discount.ToString("0.00")
+            </MudText>
+
+            <MudText Typo="Typo.h6">
+                Total: R$ @_result.Total.ToString("0.00")
+            </MudText>
+        }
 
         <MudButton FullWidth="true"
                    Color="Color.Success"
                    Variant="Variant.Filled"
-                   Class="mt-3">
+                   Class="mt-3"
+                   Disabled="_loading"
+                   OnClick="FinishOrder">
+
             Finalizar Pedido
+
         </MudButton>
     }
 
 </MudPaper>
 
 @code {
+    private bool _loading;
+    private OrderResponseModel? _result;
+
     protected override void OnInitialized()
     {
         CartService.OnChange += StateHasChanged;
+    }
+
+    private async Task FinishOrder()
+    {
+        try
+        {
+            _loading = true;
+
+            var request = new CreateOrderRequest
+            {
+                Items = CartService.Items.Select(x =>
+                    new CreateOrderItemRequest
+                    {
+                        MenuItemId = x.MenuItemId,
+                        Quantity = x.Quantity
+                    }).ToList()
+            };
+
+            _result = await OrderService.CreateAsync(request);
+
+            CartService.Clear();
+
+            Snackbar.Add("Pedido realizado com sucesso!", Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Erro ao finalizar pedido.", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     public void Dispose()
