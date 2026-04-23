@@ -16,7 +16,16 @@ public class OrderApiService
     {
         var response = await _http.PostAsJsonAsync("api/orders", request);
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            throw new Exception(
+                string.IsNullOrWhiteSpace(error)
+                    ? "Erro ao finalizar pedido."
+                    : error.Replace("\"", "")
+            );
+        }
 
         return await response.Content
             .ReadFromJsonAsync<OrderResponseModel>();

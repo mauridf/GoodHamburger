@@ -99,9 +99,9 @@
 
             Snackbar.Add("Pedido realizado com sucesso!", Severity.Success);
         }
-        catch
+        catch (Exception ex)
         {
-            Snackbar.Add("Erro ao finalizar pedido.", Severity.Error);
+            Snackbar.Add(ex.Message, Severity.Error);
         }
         finally
         {

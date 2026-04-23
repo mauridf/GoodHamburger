@@ -31,7 +31,7 @@ public class OrderService
         var menuItems = await _menuRepository.GetByIdsAsync(ids);
 
         if (!menuItems.Any())
-            throw new DomainException("Invalid order.");
+            throw new DomainException("Pedido Inválido.");
 
         ValidateBusinessRule(request, menuItems);
 
@@ -42,7 +42,7 @@ public class OrderService
             var menu = menuItems.FirstOrDefault(x => x.Id == reqItem.MenuItemId);
 
             if (menu is null)
-                throw new DomainException("Menu item not found.");
+                throw new DomainException("Item de Menu não encontrado.");
 
             order.AddItem(new OrderItem(
                 menu.Id,
@@ -96,7 +96,7 @@ public class OrderService
             var menu = menuItems.FirstOrDefault(x => x.Id == reqItem.MenuItemId);
 
             if (menu is null)
-                throw new DomainException("Menu item not found.");
+                throw new DomainException("Item de Menu não encontrado.");
 
             order.AddItem(new OrderItem(
                 menu.Id,
@@ -126,35 +126,50 @@ public class OrderService
     private static void ValidateRequest(CreateOrderRequest request)
     {
         if (request.Items is null || !request.Items.Any())
-            throw new DomainException("Order must contain items.");
+            throw new DomainException("O pedido deve conter itens.");
 
         if (request.Items.Any(x => x.Quantity <= 0))
-            throw new DomainException("Quantity must be greater than zero.");
+            throw new DomainException("Quantidade deve ser maior que zero.");
     }
 
     private static void ValidateBusinessRule(
         CreateOrderRequest request,
         List<MenuItem> menuItems)
     {
-        var categories = request.Items
-            .Select(item =>
+        var sandwichQty = 0;
+        var sideQty = 0;
+        var drinkQty = 0;
+
+        foreach (var item in request.Items)
+        {
+            var menu = menuItems.FirstOrDefault(x => x.Id == item.MenuItemId);
+
+            if (menu is null)
+                throw new DomainException("Item de Menu não encontrado.");
+
+            switch (menu.Category)
             {
-                var menu = menuItems.FirstOrDefault(x => x.Id == item.MenuItemId);
+                case MenuCategory.Sandwich:
+                    sandwichQty += item.Quantity;
+                    break;
 
-                if (menu is null)
-                    throw new DomainException("Menu item not found.");
+                case MenuCategory.Side:
+                    sideQty += item.Quantity;
+                    break;
 
-                return menu.Category;
-            })
-            .ToList();
+                case MenuCategory.Drink:
+                    drinkQty += item.Quantity;
+                    break;
+            }
+        }
 
-        if (categories.Count(x => x == MenuCategory.Sandwich) > 1)
+        if (sandwichQty > 1)
             throw new DomainException("Apenas um sanduíche permitido por pedido.");
 
-        if (categories.Count(x => x == MenuCategory.Side) > 1)
+        if (sideQty > 1)
             throw new DomainException("Apenas um acompanhamento permitido por pedido.");
 
-        if (categories.Count(x => x == MenuCategory.Drink) > 1)
+        if (drinkQty > 1)
             throw new DomainException("Apenas uma bebida permitida por pedido.");
     }
 
