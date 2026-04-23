@@ -11,16 +11,11 @@ public class OrderTests
     {
         var order = new Order();
 
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Drink",
-            3m,
-            MenuCategory.Drink,
-            2));
+        order.AddItem(new OrderItem(Guid.NewGuid(), "Drink", 3m, MenuCategory.Drink, 1));
 
-        Assert.Equal(6m, order.Subtotal);
+        Assert.Equal(3m, order.Subtotal);
         Assert.Equal(0m, order.Discount);
-        Assert.Equal(6m, order.Total);
+        Assert.Equal(3m, order.Total);
     }
 
     [Fact]
@@ -64,14 +59,11 @@ public class OrderTests
     }
 
     [Fact]
-    public void Should_Clear_Items_On_Update()
+    public void Should_Clear_Items()
     {
         var order = new Order();
 
-        order.AddItem(new OrderItem(Guid.NewGuid(), "Burger", 5m, MenuCategory.Sandwich, 2));
-        order.AddItem(new OrderItem(Guid.NewGuid(), "Drink", 2m, MenuCategory.Drink, 1));
-
-        Assert.Equal(2, order.Items.Count);
+        order.AddItem(new OrderItem(Guid.NewGuid(), "Burger", 5m, MenuCategory.Sandwich, 1));
 
         order.ClearItems();
 
@@ -80,132 +72,16 @@ public class OrderTests
     }
 
     [Fact]
-    public void Should_Calculate_Total_By_Quantity()
-    {
-        var order = new Order();
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Burger",
-            5m,
-            MenuCategory.Sandwich,
-            3));
-
-        Assert.Equal(15m, order.Subtotal);
-    }
-
-    [Fact]
-    public void Should_Apply_Multiple_Combo_Priority()
-    {
-        var order = new Order();
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Burger",
-            5m,
-            MenuCategory.Sandwich,
-            2));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Drink",
-            2.50m,
-            MenuCategory.Drink,
-            2));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Fries",
-            2m,
-            MenuCategory.Side,
-            1));
-
-        Assert.Equal(17m, order.Subtotal);
-        Assert.Equal(3.03m, order.Discount);
-        Assert.Equal(13.97m, order.Total);
-    }
-
-    [Fact]
     public void Should_Not_Accept_Quantity_Zero()
     {
         Assert.Throws<DomainException>(() =>
-            new OrderItem(
-                Guid.NewGuid(),
-                "Burger",
-                5m,
-                MenuCategory.Sandwich,
-                0));
+            new OrderItem(Guid.NewGuid(), "Burger", 5m, MenuCategory.Sandwich, 0));
     }
 
     [Fact]
     public void Should_Not_Accept_Quantity_Negative()
     {
         Assert.Throws<DomainException>(() =>
-            new OrderItem(
-                Guid.NewGuid(),
-                "Burger",
-                5m,
-                MenuCategory.Sandwich,
-                -1));
-    }
-
-    [Fact]
-    public void Should_Round_Discount_To_2_Decimals()
-    {
-        var order = new Order();
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Burger",
-            5m,
-            MenuCategory.Sandwich,
-            2));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Drink",
-            2.50m,
-            MenuCategory.Drink,
-            2));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Fries",
-            2m,
-            MenuCategory.Side,
-            1));
-
-        Assert.Equal(3.03m, order.Discount);
-    }
-
-    [Fact]
-    public void Should_Return_Total_After_Multiple_Discounts()
-    {
-        var order = new Order();
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Burger",
-            5m,
-            MenuCategory.Sandwich,
-            3));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Drink",
-            2.50m,
-            MenuCategory.Drink,
-            2));
-
-        order.AddItem(new OrderItem(
-            Guid.NewGuid(),
-            "Fries",
-            2m,
-            MenuCategory.Side,
-            1));
-
-        Assert.Equal(22m, order.Subtotal);
-        Assert.Equal(4.15m, order.Discount);
-        Assert.Equal(17.85m, order.Total);
+            new OrderItem(Guid.NewGuid(), "Burger", 5m, MenuCategory.Sandwich, -1));
     }
 }

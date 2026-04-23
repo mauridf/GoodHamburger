@@ -1,6 +1,7 @@
 ﻿using GoodHamburger.Application.DTOs;
 using GoodHamburger.Application.Interfaces;
 using GoodHamburger.Domain.Entities;
+using GoodHamburger.Domain.Enums;
 using GoodHamburger.Domain.Exceptions;
 
 namespace GoodHamburger.Application.Services;
@@ -31,6 +32,8 @@ public class OrderService
 
         if (!menuItems.Any())
             throw new DomainException("Invalid order.");
+
+        ValidateBusinessRule(request, menuItems);
 
         var order = new Order();
 
@@ -84,11 +87,16 @@ public class OrderService
 
         var menuItems = await _menuRepository.GetByIdsAsync(ids);
 
+        ValidateBusinessRule(request, menuItems);
+
         order.ClearItems();
 
         foreach (var reqItem in request.Items)
         {
-            var menu = menuItems.First(x => x.Id == reqItem.MenuItemId);
+            var menu = menuItems.FirstOrDefault(x => x.Id == reqItem.MenuItemId);
+
+            if (menu is null)
+                throw new DomainException("Menu item not found.");
 
             order.AddItem(new OrderItem(
                 menu.Id,
@@ -122,6 +130,32 @@ public class OrderService
 
         if (request.Items.Any(x => x.Quantity <= 0))
             throw new DomainException("Quantity must be greater than zero.");
+    }
+
+    private static void ValidateBusinessRule(
+        CreateOrderRequest request,
+        List<MenuItem> menuItems)
+    {
+        var categories = request.Items
+            .Select(item =>
+            {
+                var menu = menuItems.FirstOrDefault(x => x.Id == item.MenuItemId);
+
+                if (menu is null)
+                    throw new DomainException("Menu item not found.");
+
+                return menu.Category;
+            })
+            .ToList();
+
+        if (categories.Count(x => x == MenuCategory.Sandwich) > 1)
+            throw new DomainException("Apenas um sanduíche permitido por pedido.");
+
+        if (categories.Count(x => x == MenuCategory.Side) > 1)
+            throw new DomainException("Apenas um acompanhamento permitido por pedido.");
+
+        if (categories.Count(x => x == MenuCategory.Drink) > 1)
+            throw new DomainException("Apenas uma bebida permitida por pedido.");
     }
 
     private static OrderResponse Map(Order order)
